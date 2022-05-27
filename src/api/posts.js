@@ -11,7 +11,6 @@ export const createPostsRequests = async (post, jwtToken) =>
     },
     {
       headers: {
-        'Content-Type': 'multipart/form-data',
         Authorization: `Bearer ${jwtToken}`,
       },
     }
