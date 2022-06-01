@@ -61,13 +61,13 @@ export const PostProvider = ({ children }) => {
 
   const detailPost = async (idPost) => {
     const res = await detailPostRequest(idPost);
+    console.log('detalle desde el contexto', res.data.data);
     setDetail(res.data.data);
   };
 
   useEffect(() => {
     getPosts();
     getPostsUser();
-    detailPost(params.id);
   }, [auth]);
 
   return (
