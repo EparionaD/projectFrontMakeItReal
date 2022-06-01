@@ -1,10 +1,21 @@
 import React from 'react';
 import Button from './Button';
-import { NavLink } from 'react-router-dom';
+import { NavLink, useNavigate } from 'react-router-dom';
 import { useAuth } from '../context/authContext';
+import { usePost } from '../context/postContext';
 
 const Navbar = () => {
-  const { auth } = useAuth();
+  const { auth, setAuth } = useAuth();
+  const { setPosts, setPostsUser, postsUser, posts } = usePost();
+  const navigate = useNavigate();
+
+  const logoutUser = () => {
+    window.localStorage.removeItem('userLocal');
+    setAuth(null);
+    setPosts([]);
+    setPostsUser([]);
+    navigate('/posts');
+  };
   return (
     <nav className=''>
       <div className='flex container mx-auto gap-x-4'>
@@ -41,10 +52,21 @@ const Navbar = () => {
               linkTo='/create'
             />
             <Button
+              name='Tus publicaciones'
+              buttonStyle='bg-fourth text-black hover:bg-primary hover:border hover:border-fourth hover:text-black'
+              linkTo='/dashboard'
+            />
+            {/* <Button
               name='Cerrar sesión'
               buttonStyle='border border-black hover:bg-third hover:text-white hover:border-third'
               linkTo='/login'
-            />
+            /> */}
+            <button
+              className='px-6 py-2 h-max rounded-md font-semibold border border-black hover:bg-third hover:text-white hover:border-third'
+              onClick={logoutUser}
+            >
+              Cerrar sesión
+            </button>
           </div>
         ) : (
           <div className='flex gap-x-2'>

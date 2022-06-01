@@ -8,7 +8,7 @@ const REGISTER_URL = '/auth/local/register';
 
 const Register = () => {
   const navigate = useNavigate();
-  const { signup } = useAuth();
+  const { signup, userLocalStorage } = useAuth();
 
   return (
     <div className='bg-white rounded-xl p-10 h-max w-4/12'>
@@ -21,6 +21,7 @@ const Register = () => {
         onSubmit={async (values) => {
           const res = await axios.post(REGISTER_URL, values);
           signup(res.data);
+          userLocalStorage(res.data);
           navigate('/dashboard');
         }}
       >

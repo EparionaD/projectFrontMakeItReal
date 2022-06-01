@@ -1,5 +1,6 @@
 import { Route, Routes } from 'react-router-dom';
 import { ProtectedRoute } from './components/ProtectedRoute';
+import { Toaster } from 'react-hot-toast';
 import { AuthProvider } from './context/authContext';
 import { PostProvider } from './context/postContext';
 import {
@@ -8,8 +9,11 @@ import {
   LoginPage,
   PostPage,
   RegisterPage,
+  Dashboard,
+  DetailPage,
 } from './pages';
-import Dashboard from './pages/Dashboard';
+// import Dashboard from './pages/Dashboard';
+// import DetailPage from './pages/DetailPage';
 
 function App() {
   return (
@@ -20,8 +24,17 @@ function App() {
           <Route path='/login' element={<LoginPage />} />
           <Route path='/register' element={<RegisterPage />} />
           <Route path='/posts' element={<PostPage />} />
+          <Route path='/posts/:id' element={<DetailPage />} />
           <Route
             path='/create'
+            element={
+              <ProtectedRoute>
+                <CreatePage />
+              </ProtectedRoute>
+            }
+          />
+          <Route
+            path='/update/:id'
             element={
               <ProtectedRoute>
                 <CreatePage />
@@ -37,6 +50,7 @@ function App() {
             }
           />
         </Routes>
+        <Toaster />
       </PostProvider>
     </AuthProvider>
   );

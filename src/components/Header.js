@@ -1,11 +1,13 @@
 import React from 'react';
-import { useLocation } from 'react-router-dom';
+import { useLocation, useParams } from 'react-router-dom';
 import { useAuth } from '../context/authContext';
 import Navbar from './Navbar';
 
 const Header = () => {
   const { pathname } = useLocation();
   const { auth } = useAuth();
+
+  const params = useParams();
 
   if (pathname === '/') {
     return (
@@ -69,16 +71,36 @@ const Header = () => {
         </div>
       </header>
     );
+  } else if (pathname === '/create') {
+    return (
+      <header className='bg-primary grid grid-rows-4'>
+        <div className='row-span-4 pt-3 flex flex-col'>
+          <Navbar />
+          <div className='container mx-auto flex flex-col h-full pb-10'>
+            <h2 className='text-4xl font-bold border-4 border-primary border-l-primary-400 pl-4'>
+              Crear tu publicación
+            </h2>
+          </div>
+        </div>
+      </header>
+    );
+  } else if (params.id) {
+    return (
+      <header className='bg-primary grid grid-rows-4'>
+        <div className='row-span-4 pt-3 flex flex-col'>
+          <Navbar />
+          <div className='container mx-auto flex flex-col h-full pb-10'>
+            <h2 className='text-4xl font-bold border-4 border-primary border-l-primary-400 pl-4'>
+              Edita tu publicación
+            </h2>
+          </div>
+        </div>
+      </header>
+    );
   }
   return (
     <>
-      {/* <header
-        className={
-          pathname === '/'
-            ? 'bg-primary grid grid-rows-6 h-screen'
-            : 'bg-primary grid grid-rows-6'
-        }
-      >
+      <header className='bg-primary grid grid-rows-4'>
         <div className='row-span-4 pt-3 flex flex-col'>
           <Navbar />
           {pathname === '/' ? (
@@ -116,7 +138,7 @@ const Header = () => {
         ) : (
           <></>
         )}
-      </header> */}
+      </header>
     </>
   );
 };

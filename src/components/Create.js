@@ -1,125 +1,97 @@
-import React, { useState } from 'react';
-import { Formik, Form, Field } from 'formik';
+import React, { useEffect, useState } from 'react';
+import * as YUP from 'yup';
+import { Formik, Form, Field, ErrorMessage } from 'formik';
 import { useAuth } from '../context/authContext';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, useParams } from 'react-router-dom';
 import { usePost } from '../context/postContext';
-import axios from 'axios';
 
 const Create = () => {
   const { auth } = useAuth();
   const navigate = useNavigate();
+  const params = useParams();
 
-  const { createPost } = usePost();
-
-  const [inputsFile, setInputsFile] = useState({
-    title: '',
-    description: '',
-    user: `${auth.user.id}`,
-  });
+  const { createPost, getPost, updatePost } = usePost();
 
   const [file, setFile] = useState(null);
 
-  const handleChangeInput = ({ target: { name, value } }) => {
-    // console.log(name, value);
-    setInputsFile({ ...inputsFile, [name]: value });
-  };
+  // const [post, setPost] = useState({
+  //   title: '',
+  //   description: '',
+  //   user: `${auth.user.id}`,
+  // });
+
   const handleChangeFile = ({ target: { files } }) => {
     // console.log(files);
     setFile(files);
   };
 
-  const handleSubmit = async (e) => {
-    e.preventDefault();
-    const innerValues = {
-      title: inputsFile.title,
-      description: inputsFile.description,
-      user: inputsFile.user,
-    };
-    // console.log(innerValues);
-    const data = new FormData();
-    for (let i = 0; i < file.length; i++) {
-      // console.log(file[i]);
-      data.append('files.image', file[i]);
-    }
-    data.append('data', JSON.stringify(innerValues));
-    console.log(data.get('data'));
-    console.log(data.get('files.image'));
+  // useEffect(() => {
+  //   (async () => {
+  //     if (params.id) {
+  //       const jwtToken = `${auth.jwt}`;
+  //       const res = await getPost(params.id, jwtToken);
+  //       const postID = res.data.data.attributes;
 
-    const jwtToken = `${auth.jwt}`;
+  //       const updatePostID = {
+  //         title: postID.title,
+  //         description: postID.description,
+  //       };
+  //       setPost(updatePostID);
+  //     }
+  //   })();
+  // }, []);
 
-    const res = await fetch('http://localhost:1337/api/posts', {
-      method: 'POST',
-      headers: {
-        Authorization: `Bearer ${jwtToken}`,
-      },
-      body: data,
-    });
-  };
   return (
-    <div>
-      <form onSubmit={handleSubmit}>
-        <div className='flex flex-col mb-4'>
-          <label className='text-sm mb-1'>Título</label>
-          <input
-            className='border border-gray-200 rounded h-9 pl-2'
-            name='title'
-            type='text'
-            onChange={handleChangeInput}
-          />
-        </div>
-        <div className='flex flex-col mb-6'>
-          <label className='text-sm mb-1'>Descripción</label>
-          <input
-            as='textarea'
-            className='border border-gray-200 rounded h-9 pl-2'
-            name='description'
-            type='text'
-            onChange={handleChangeInput}
-          />
-        </div>
-        <div className='flex flex-col mb-6'>
-          <label className='text-sm mb-1'>Imagen</label>
-          <input
-            className='border border-gray-200 rounded h-9 pl-2'
-            name='image'
-            type='file'
-            onChange={handleChangeFile}
-          />
-        </div>
-        <button className='px-6 py-2 h-max rounded-md font-semibold bg-third text-white'>
-          Crear
-        </button>
-      </form>
-      {/* <Formik
+    <div className='w-2/5 mt-[-15rem] bg-white rounded-xl p-10'>
+      <Formik
         initialValues={{
           title: '',
           description: '',
-          image: null,
+          image: '',
           user: `${auth.user.id}`,
         }}
+        validationSchema={YUP.object({
+          title: YUP.string().required('El título es requerido'),
+          description: YUP.string().required('El contenido es requerido'),
+          // image: YUP.mixed().required('La imagen es requerida'),
+        })}
         onSubmit={async (values) => {
-          console.log(values);
-          // const image = 'files.image';
+          // console.log(values.image);
+          // console.log(values);
+          // console.log(file);
           const valuesModificated = {
             title: values.title,
             description: values.description,
             user: values.user,
           };
-          // console.log(data);
-
           const data = new FormData();
-          for (let i = 0; i < values.image.length; i++) {
-            console.log(values.image[i]);
-            data.append('files.image', values.image[i]);
+          for (let i = 0; i < file.length; i++) {
+            // console.log(file[i]);
+            data.append('files.image', file[i]);
           }
-          console.log('data solo del archivo', data.get('data'));
-
           data.append('data', JSON.stringify(valuesModificated));
-          console.log('data de todos archivos', data.get('data'));
+          // console.log(data.get('files.image'));
+
           const jwtToken = `${auth.jwt}`;
-          // createPost(data, jwtToken);
-          // createPost(values, jwtToken);
+          // if (params.id) {
+          //   await updatePost(params.id, post, jwtToken);
+          // } else {
+          //   await createPost(data, jwtToken);
+          // }
+          await createPost(data, jwtToken);
+
+          navigate('/dashboard');
+
+          // const data = new FormData();
+          // data.append('files.image', values.image);
+          // data.append('data', JSON.stringify(valuesModificated));
+          // console.log(data.get('files.image'));
+          // console.log(data.get('data'));
+          // const jwtToken = `${auth.jwt}`;
+          // await createPost(data, jwtToken);
+          // navigate('/dashboard');
         }}
+        enableReinitialize
       >
         {({ handleSubmit }) => (
           <Form onSubmit={handleSubmit}>
@@ -130,33 +102,51 @@ const Create = () => {
                 name='title'
                 type='text'
               />
+              <ErrorMessage
+                component='p'
+                className='text-rose-900'
+                name='title'
+              />
             </div>
             <div className='flex flex-col mb-6'>
               <label className='text-sm mb-1'>Descripción</label>
               <Field
-                as='textarea'
-                className='border border-gray-200 rounded h-9 pl-2'
+                component='textarea'
+                className='border border-gray-200 rounded pl-2 h-40'
                 name='description'
                 type='text'
+              />
+              <ErrorMessage
+                component='p'
+                className='text-rose-900'
+                name='description'
               />
             </div>
             <div className='flex flex-col mb-6'>
               <label className='text-sm mb-1'>Imagen</label>
-              <Field
-                className='border border-gray-200 rounded h-9 pl-2'
+
+              <input
+                className='border border-gray-200 rounded h-9 pl-2 focus:outline-none'
                 name='image'
                 type='file'
+                // onChange={(e) => setFieldValue('image', e.target.files[0])}
+                onChange={handleChangeFile}
+              />
+              <ErrorMessage
+                component='p'
+                className='text-rose-900'
+                name='image'
               />
             </div>
             <button
               className='px-6 py-2 h-max rounded-md font-semibold bg-third text-white'
               type='submit'
             >
-              Crear
+              Guardar
             </button>
           </Form>
         )}
-      </Formik> */}
+      </Formik>
     </div>
   );
 };
